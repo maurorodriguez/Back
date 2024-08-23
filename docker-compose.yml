@@ -1,0 +1,65 @@
+version: "3"
+
+services:
+  db-dev:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=myDatabaseDev
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_USER=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - myProjectDev:/var/lib/postgresql/data/pgdata
+    networks:
+      - myProjectNet
+    ports: 
+      - 5434:5432
+  
+  db-test:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=myDatabaseTest
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_USER=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - myProjectTest:/var/lib/postgresql/data/pgdata
+    networks:
+      - myProjectNet
+    ports: 
+      - 5433:5432
+  
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=myDatabase
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_USER=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - myProject:/var/lib/postgresql/data/pgdata
+    networks:
+      - myProjectNet
+    ports: 
+      - 5432:5432
+
+  node:
+    build:
+      context: .
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    networks:
+      - myProjectNet
+    depends_on:
+      - db-dev
+      - db-test
+      - db
+volumes:
+  myProjectDev:
+  myProjectTest:
+  myProject:
+
+networks:
+  myProjectNet:
+    name: myProjectNet
